@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أسئلة مراجعة: تاريخ الأدب</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Google Font (Cairo) for Arabic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Apply the Cairo font as the default */
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+
+        /* Custom styles for quiz options */
+        .option-btn {
+            @apply w-full p-3 my-2 text-right border-2 border-gray-300 rounded-lg shadow-sm hover:bg-gray-100 transition-colors duration-200;
+        }
+
+        .option-btn:disabled {
+            @apply opacity-70 cursor-not-allowed;
+        }
+
+        /* State: Correct answer was selected */
+        .option-btn.correct {
+            @apply bg-green-100 border-green-500 text-green-800 font-semibold;
+        }
+        
+        /* State: Incorrect answer was selected */
+        .option-btn.incorrect {
+            @apply bg-red-100 border-red-500 text-red-800 font-semibold;
+        }
+
+        /* State: The correct answer (when a wrong one was selected) */
+        .option-btn.show-correct {
+            @apply bg-green-100 border-green-500;
+        }
+
+        /* Main navigation buttons */
+        .nav-btn {
+            @apply px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <main class="bg-white w-full max-w-3xl p-6 sm:p-8 rounded-2xl shadow-xl">
+        
+        <!-- Header Section -->
+        <div class="flex flex-col sm:flex-row justify-between items-center pb-4 border-b-2 border-gray-200 mb-6">
+            <h1 class="text-2xl sm:text-3xl font-bold text-blue-800 text-center sm:text-right">
+                مراجعة تاريخ الأدب
+            </h1>
+            <button id="shuffle-btn" class="mt-4 sm:mt-0 px-4 py-2 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition-all duration-200">
+                تحديث وشッふる
+            </button>
+        </div>
+
+        <!-- Quiz Container -->
+        <div id="quiz-container">
+            
+            <!-- Progress and Score -->
+            <div class="flex justify-between items-center mb-4 text-lg">
+                <div id="progress-text" class="font-semibold text-gray-700">سؤال 1 من 300</div>
+                <div id="score-text" class="font-bold text-blue-600">النتيجة: 0 / 300</div>
+            </div>
+
+            <!-- Question Text -->
+            <div id="question-text" class="text-xl sm:text-2xl font-semibold text-gray-900 mb-6 min-h-[60px] text-center">
+                يتم تحميل السؤال...
+            </div>
+
+            <!-- Options Container -->
+            <div id="options-container" class="flex flex-col">
+                <!-- Option buttons will be dynamically inserted here -->
+            </div>
+
+            <!-- Feedback Message -->
+            <div id="feedback-text" class="mt-4 text-xl font-bold text-center h-8">
+                &nbsp; <!-- Placeholder for height -->
+            </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="flex justify-between items-center mt-8 border-t-2 border-gray-200 pt-6">
+            <button id="prev-btn" class="nav-btn">
+                &larr; السابق
+            </button>
+            <button id="next-btn" class="nav-btn">
+                التالي &rarr;
+            </button>
+        </div>
+
+        <!-- Jump to Question -->
+        <div class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-2">
+            <label for="jump-input" class="text-gray-700">اذهب إلى سؤال:</label>
+            <input type="number" id="jump-input" class="w-24 p-2 border-2 border-gray-300 rounded-lg text-center" min="1" max="300">
+            <button id="jump-btn" class="px-5 py-2 bg-gray-600 text-white rounded-lg shadow-md hover:bg-gray-700 transition-all duration-200 mt-2 sm:mt-0">
+                اذهب
+            </button>
+        </div>
+
+    </main>
+
+    <!-- JavaScript Logic -->
+    <script type="module">
+        
+        // ======================================================================
+        // ======================================================================
+        //
+        //          !!! تعليمات هامة !!!
+        //
+        //    قم بنسخ ولصق جميع أسئلتك الـ 300 داخل هذا المصفوفة
+        //    لقد أضفت أول 10 أسئلة كمثال لك
+        //
+        //    q: هو نص السؤال
+        //    o: هي مصفوفة من 4 خيارات
+        //    a: هو رقم الإجابة الصحيحة (0 للرقم الأول، 1 للثاني، 2 للثالث، 3 للرابع)
+        //
+        // ======================================================================
+        // ======================================================================
+
+        const allQuestions = [
+            {
+                q: "1. ما هو المعنى الذي عرفت به كلمة \"أدب\" في العصر الجاهلي، كما ورد في شعر طرفة بن العبد؟",
+                o: ["الأخلاق الحميدة", "الدعوة إلى مأدبة", "سنة الآباء والأجداد", "الأخذ من كل علم بطرف"],
+                a: 1 
+            },
+            {
+                q: "2. من هو العالم الذي وصف الأدب بأنه \"الأخذ من كل علم بطرف\"؟",
+                o: ["ابن خلدون", "الجاحظ", "عبد الله بن المقفع", "ابن قتيبة"],
+                a: 1
+            },
+            {
+                q: "3. من هو أول من أشار إلى تسمية \"المعلقات\" في كتابه \"العقد الفريد\"؟",
+                o: ["حماد الراوية", "الزوزني", "ابن عبد ربه الأندلسي", "امرؤ القيس"],
+                a: 2
+            },
+            {
+                q: "4. ما هي السمة البارزة للشعر الجاهلي من الناحية الموضوعية؟",
+                o: ["وحدة الموضوع والقصيدة", "وحدة البيت", "الاعتماد على السجع", "خلوه من الوصف"],
+                a: 1
+            },
+            {
+                q: "5. من هو أشهر خطباء العرب في الجاهلية، وكان نصرانياً من بني إياد؟",
+                o: ["قس بن ساعدة الأيادي", "طرفة بن العبد", "امرؤ القيس", "حسان بن ثابت"],
+                a: 0
+            },
+            {
+                q: "6. بماذا تميز النثر الجاهلي على عكس الشعر الجاهلي؟",
+                o: ["اعتمد على وحدة البيت", "اعتمد على وحدة الموضوع", "كثرة الألفاظ الغريبة", "قلة الخطابة"],
+                a: 1
+            },
+            {
+                q: "7. ما هو أول كتاب دونه العرب، وكان ذلك في عهد أبي بكر الصديق؟",
+                o: ["القرآن الكريم", "ديوان الشعر", "الأدب الكبير", "العقد الفريد"],
+                a: 0
+            },
+            {
+                q: "8. ما هو اللقب الذي أطلق على الشاعر حسان بن ثابت لملازمته للنبي صلى الله عليه وسلم ودفاعه عنه؟",
+                o: ["أمير الشعراء", "شاعر الرسول", "الشاعر المخضرم", "شاعر الدعوة"],
+                a: 1
+            },
+            {
+                q: "9. أي من الأغراض الشعرية التالية اختفى في صدر الإسلام لتحريم الإسلام له؟",
+                o: ["المديح", "الوصف", "الهجاء المقذع وشعر المجون", "الرثاء"],
+                a: 2
+            },
+            {
+                q: "10. إلى أين نقل معاوية بن أبي سفيان عاصمة الخلافة عند قيام الدولة الأموية؟",
+                o: ["بغداد", "القاهرة", "دمشق", "قرطبة"],
+                a: 2
+            }
+            
+            // ======================================================================
+            //  !!! الصق بقية أسئلتك الـ 290 هنا بنفس التنسيق !!!
+            //
+            //  مثال للسؤال القادم:
+            //  ,
+            //  {
+            //      q: "11. من هو شاعر النقائض الذي تميز بالرقة في شعره...؟",
+            //      o: ["الأخطل", "جرير", "حسان بن ثابت", "الكميت"],
+            //      a: 1 
+            //  }
+            //
+            // ======================================================================
+        ];
+
+        // --- End of Question Data ---
+
+
+        // --- Quiz Application Logic ---
+
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        const answeredQuestions = new Map(); // Stores { index -> { selected, correct } }
+
+        // DOM Elements
+        const progressText = document.getElementById('progress-text');
+        const scoreText = document.getElementById('score-text');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackText = document.getElementById('feedback-text');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const shuffleBtn = document.getElementById('shuffle-btn');
+        const jumpBtn = document.getElementById('jump-btn');
+        const jumpInput = document.getElementById('jump-input');
+
+        /**
+         * Shuffles an array in place using Fisher-Yates algorithm.
+         * @param {Array} array Array to be shuffled.
+         */
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        /**
+         * Initializes or restarts the quiz.
+         */
+        function startQuiz() {
+            currentQuestions = shuffleArray([...allQuestions]);
+            currentQuestionIndex = 0;
+            score = 0;
+            answeredQuestions.clear();
+            jumpInput.max = currentQuestions.length;
+            updateScore();
+            loadQuestion(currentQuestionIndex);
+        }
+
+        /**
+         * Loads a question onto the page.
+         * @param {number} index The index of the question to load from currentQuestions.
+         */
+        function loadQuestion(index) {
+            if (index < 0 || index >= currentQuestions.length) return;
+
+            const question = currentQuestions[index];
+            const questionData = answeredQuestions.get(index);
+
+            questionText.textContent = question.q;
+            optionsContainer.innerHTML = '';
+            feedbackText.textContent = '';
+            feedbackText.className = 'mt-4 text-xl font-bold text-center h-8'; // Reset class
+            progressText.textContent = `سؤال ${index + 1} من ${currentQuestions.length}`;
+
+            // Create option buttons
+            question.o.forEach((option, i) => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add('option-btn');
+                button.dataset.index = i;
+
+                if (questionData) {
+                    // This question has been answered, show results
+                    button.disabled = true;
+                    if (i === question.a) {
+                        button.classList.add('correct');
+                    }
+                    if (i === questionData.selected && i !== question.a) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    // This question is new, add click listener
+                    button.addEventListener('click', () => handleOptionClick(button, i, question.a));
+                }
+                optionsContainer.appendChild(button);
+            });
+
+            // Update navigation button states
+            prevBtn.disabled = index === 0;
+            nextBtn.disabled = index === currentQuestions.length - 1;
+
+            // Show feedback if question was already answered
+            if (questionData) {
+                const isCorrect = questionData.selected === questionData.correct;
+                feedbackText.textContent = isCorrect ? 'إجابة صحيحة!' : 'إجابة خاطئة';
+                feedbackText.classList.add(isCorrect ? 'text-green-600' : 'text-red-600');
+            }
+        }
+
+        /**
+         * Handles the logic when a user clicks an option.
+         * @param {HTMLButtonElement} button The button that was clicked.
+         * @param {number} selectedIndex The index of the selected option.
+         * @param {number} correctIndex The index of the correct answer.
+         */
+        function handleOptionClick(button, selectedIndex, correctIndex) {
+            // Store the answer
+            answeredQuestions.set(currentQuestionIndex, { selected: selectedIndex, correct: correctIndex });
+
+            const isCorrect = selectedIndex === correctIndex;
+
+            if (isCorrect) {
+                score++;
+                feedbackText.textContent = 'إجابة صحيحة!';
+                feedbackText.classList.add('text-green-600');
+                button.classList.add('correct');
+            } else {
+                feedbackText.textContent = 'إجابة خاطئة';
+                feedbackText.classList.add('text-red-600');
+                button.classList.add('incorrect');
+            }
+
+            // Disable all buttons and show the correct answer
+            Array.from(optionsContainer.children).forEach(btn => {
+                btn.disabled = true;
+                if (parseInt(btn.dataset.index) === correctIndex) {
+                    // Add 'correct' to the right answer (or 'show-correct' if not selected)
+                    btn.classList.add(selectedIndex === correctIndex ? 'correct' : 'show-correct');
+                }
+            });
+
+            updateScore();
+            // Enable next button
+            nextBtn.disabled = currentQuestionIndex === currentQuestions.length - 1;
+        }
+
+        /**
+         * Updates the score display.
+         */
+        function updateScore() {
+            scoreText.textContent = `النتيجة: ${score} / ${currentQuestions.length}`;
+        }
+
+        /**
+         * Loads the next question.
+         */
+        function nextQuestion() {
+            if (currentQuestionIndex < currentQuestions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion(currentQuestionIndex);
+            }
+        }
+
+        /**
+         * Loads the previous question.
+         */
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion(currentQuestionIndex);
+            }
+        }
+
+        /**
+         * Jumps to a specific question number.
+         */
+        function jumpToQuestion() {
+            const num = parseInt(jumpInput.value);
+            if (num >= 1 && num <= currentQuestions.length) {
+                currentQuestionIndex = num - 1;
+                loadQuestion(currentQuestionIndex);
+                jumpInput.value = ''; // Clear input
+            } else {
+                alert(`الرجاء إدخال رقم بين 1 و ${currentQuestions.length}`);
+            }
+        }
+
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', startQuiz);
+        shuffleBtn.addEventListener('click', startQuiz);
+        nextBtn.addEventListener('click', nextQuestion);
+        prevBtn.addEventListener('click', prevQuestion);
+        jumpBtn.addEventListener('click', jumpToQuestion);
+        
+        // Allow pressing Enter to jump
+        jumpInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                jumpToQuestion();
+            }
+        });
+
+    </script>
+
+</body>
+</html>
